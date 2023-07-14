@@ -1,0 +1,40 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "file://mongodb/schema/discord_user_schema.json",
+    "title": "Discord User Record",
+    "description": "The user details of a Discord user, as leveraged by party_bot",
+    "type": "object",
+    "properties": {
+        "uid": {
+            "description": "The unique user identifier provided by Discord",
+            "type": "string"
+        },
+        "name": {
+            "description": "The user's display name",
+            "type": "string"
+        },
+        "subscriptions": {
+            "description": "The user's channel subscriptions",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "guild_id": {
+                        "description": "The unique identifier of the guild in which the channel subscription was made",
+                        "type": "string"
+                    },
+                    "channel_id": {
+                        "description": "The guild channel the user is subscribed to",
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "required": [
+        "uid",
+        "name"
+    ]
+}

@@ -21,11 +21,10 @@ async def get_discord_users():
     
     try:
         db = await get_db()
-        usersColl = db.discord_users
-        users = usersColl.find()
+        users = db.discord_users.find()
         
-        for document in await users.to_list(length=100):
-           print(document)
+        return users.to_list(None)
+    
     except Exception as e:
         print(e)
 
@@ -39,11 +38,10 @@ async def get_discord_user_by_id(id):
         print("Failed to get user by ID")
 
 async def add_user(user):
-    
-    print(user)
+
     try:
-        users_coll = await get_users_collection()
-        await users_coll.insert_one(
+        db = await get_db()
+        await db.discord_users.insert_one(
             {
                 "uid": user.id,
                 "name": user.name
@@ -53,14 +51,39 @@ async def add_user(user):
     except Exception as e:
         print("Failed to add user to collection", e)
 
-async def get_users_collection():
-    
+async def add_user_subscription(user_id, guild_id, channel_id):
     try:
         db = await get_db()
-        return db.discord_users
+        await db.discord_users.find_one_and_update(
+            {"uid" : user_id },
+            {"$push": 
+                {
+                    "subscriptions": {
+                        "guild_id": guild_id,
+                        "channel_id": channel_id
+                    }
+                }
+            }, upsert=True
+        )
         
-    except Exception as e:
-        print("Failed to retrieve discord users collection")
+    except Exception as e: 
+        print("Failed to add user subscription")
+        print(e)
+
+async def find_users_by_guild_subscription(guild_id, channel_id):
+    try: 
+        db = await get_db()
+        subscribed_users = await db.discord_users.find(
+            { 
+                 "subscriptions.guild_id" : { "$eq" : guild_id} , 
+                 "subscriptions.channel_id" : { "$eq" : channel_id} 
+            }
+            ).to_list(None)
+        
+        print(subscribed_users)
+    except Exception as e: 
+       print("Failed to enumerate users subscribed to channel")  
+       print(e)   
     
 async def get_client():
     try:
@@ -80,7 +103,8 @@ async def get_db():
     except Exception as e:
         print("Failed to retrieve database")
         
-# asyncio.run(add_user(type('obj', (object,), {'id': 1, 'name': "foo"})))
-
-asyncio.run(get_discord_users())
-asyncio.run(get_discord_user_by_id(1))
+# asyncio.run(add_user(type('obj', (object,), {'id': 2, 'name': "bar"})))
+# asyncio.run(get_discord_users())
+# asyncio.run(get_discord_user_by_id(1))
+# asyncio.run(add_user_subscription(1, "baz", "bash"))
+# asyncio.run(find_users_by_guild_subscription("foo", "bar"))
