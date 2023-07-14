@@ -1,0 +1,11 @@
+[project]
+name = "party_bot"
+version = "0.0.1"
+description = "A discord party bot"
+authors = ["Adam Geipel <adam.geipel+developer@gmail.com"]
+      
+[project.dependencies]
+discord = "^2.3.1"
+dotenv = "^0.0.5"
+motor = "^3.2.0"
+      
